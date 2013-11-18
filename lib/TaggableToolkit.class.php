@@ -29,8 +29,10 @@ class TaggableToolkit
    */
   public static function cleanTagName($tag, $options = array())
   {
-    $tag = trim(str_replace(',', ' ', $tag));
-
+    if (!isset($options['explode']) || true === $options['explode']) {
+      $tag = trim(str_replace(',', ' ', $tag));
+    }
+    
     if(isset($options['case']))
     {
       $tag = call_user_func($options['case'], $tag);
