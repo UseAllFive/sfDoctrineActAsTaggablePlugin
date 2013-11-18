@@ -119,6 +119,10 @@ class TaggableListener extends Doctrine_Record_Listener
 
 class Taggable extends Doctrine_Template
 {
+    protected static $defaultOptions = array(
+        'explode' => true,
+    );
+
     public function setTableDefinition()
     {
         $this->addListener(new TaggableListener());
@@ -235,7 +239,12 @@ class Taggable extends Doctrine_Template
           return;
         }
 
-        $tagname = TaggableToolkit::explodeTagString($tagname);
+        $options = array_merge(self::$defaultOptions, $options);
+
+        if (true === $options['explode']) {
+            $tagname = TaggableToolkit::explodeTagString($tagname);
+        }
+
 
         if (is_array($tagname))
         {
@@ -340,6 +349,8 @@ class Taggable extends Doctrine_Template
     */
     public function getTags($options = array())
     {
+        $options = array_merge(self::$defaultOptions, $options);
+
         $tags = ($this->get_tags($this->getInvoker()) + $this->getSavedTags());
 
         if (isset($options['is_triple']) && (true === $options['is_triple']))
@@ -410,9 +421,13 @@ class Taggable extends Doctrine_Template
     *
     * @param      mixed       $tag
     */
-    public function hasTag($tag = null)
+    public function hasTag($tag = null, $options = array())
     {
-        $tag = TaggableToolkit::explodeTagString($tag);
+        $options = array_merge(self::$defaultOptions, $options);
+
+        if (true === $options['explode']) {
+            $tag = TaggableToolkit::explodeTagString($tag);
+        }
 
         if (is_array($tag))
         {
@@ -435,7 +450,7 @@ class Taggable extends Doctrine_Template
             }
             elseif (is_string($tag))
             {
-                $tag = TaggableToolkit::cleanTagName($tag);
+                $tag = TaggableToolkit::cleanTagName($tag, $options);
 
                 if (isset($tags[$tag]))
                 {
@@ -519,9 +534,13 @@ class Taggable extends Doctrine_Template
     *
     * @param      mixed       $tagname
     */
-    public function removeTag($tagname)
+    public function removeTag($tagname, $options = array())
     {
-        $tagname = TaggableToolkit::explodeTagString($tagname);
+        $options = array_merge(self::$defaultOptions, $options);
+
+        if (true === $options['explode']) {
+            $tagname = TaggableToolkit::explodeTagString($tagname);
+        }
 
         if (is_array($tagname))
         {
@@ -532,7 +551,7 @@ class Taggable extends Doctrine_Template
         }
         else
         {
-            $tagname = TaggableToolkit::cleanTagName($tagname);
+            $tagname = TaggableToolkit::cleanTagName($tagname, $options);
 
             $tags = $this->get_tags($this->getInvoker()) ;
             $saved_tags = $this->getSavedTags();
@@ -580,9 +599,9 @@ class Taggable extends Doctrine_Template
     * @param       $object
     * @param      mixed       $tagname
     */
-    public function setTags($tagname)
+    public function setTags($tagname, $options = array())
     {
         $this->removeAllTags();
-        $this->addTag($tagname);
+        $this->addTag($tagname, $options);
     }
 }
